@@ -162,5 +162,31 @@ contract THMarket is ERC721URIStorage {
         return items;
     }
 
+    // Allows user to resell a token they have purchased.
+    funcction resellToken(uint256 tokenId, uint256 price) public payable {
+        require(marketItemId[tokenId].owner == msg.sender, "Only the item owner can perform this operation!");
+        require(msg.sender == listingFee, "Fee must be equal to the listing fee!");
 
+        marketItemId[tokeId].sold = false;
+        marketItemId[tokeId].price = price;
+        marketItemId[tokeId].seller = payable(msg.sender);
+        marketItemId[tokeId].owner = payable(address(this));
+
+        _itemsSold.decrement();
+        _transfer(msg.sender, address(this), tokenId);
+    }
+
+    // Allows user to cancel their listing.
+    function cancelItemListing(uint256 tokenId) public {
+        require(marketItemId[tokenId].seller == msg.sender, "Only the item seller can perform this operation!");
+        require(marketItemId[tokenId].sold == false, "Only cancel items which are not sold yet!");
+
+        marketItemId[tokenId].owner == payable(msg.sender);
+        marketItemId[tokenId].seller = payable(address(0));
+        marketItemId[tokenId].sold = true;
+        
+        _itemsSold.increment();
+        payable(owner).transfer(listingFee);
+        _transfer(address(this), msg.sender, tokenId);
+    }
 }

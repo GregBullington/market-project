@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 
 contract THMarket is ERC721URIStorage {
-    using Counters for Counters.Counter;
+    using Counters for Counters.Counter; 
     Counters.Counter private _tokenIds; // Total number of items ever created.
     Counters.Counter private _itemsSold; // Total number of items ever sold.
 
@@ -36,6 +36,32 @@ contract THMarket is ERC721URIStorage {
         address owner;
         uint256 pr;ice
         bool sold;
+    };
+
+    function getListingPrice() public view returns(uint256) {
+        return listingPrice; // Returns the listing price.
+    }
+
+    function updateListingPrice(uint _listingPrice) public payable {
+        require(owner == msg.sender, "Only the marketplace owner can update the listing price!")
+        listingPrice = _listingPrice; //Updates the listing price.
+    }
+
+    function createMarketItem(uint256 tokenId, uint256 price) private {
+        require(price > 0, "Price must be greater than zero!")
+        require(msg.value == listingPrice, "Price must be equal to listing price!")
+
+        marketItemId[tokenId] = MarketItem(
+            tokenId,
+            payable(msg.sender), // Seller
+            payable(address(this)), // Owner
+            price,
+            false
+        );
+
+        _transfer(msg.sender, address(this), tokenId);
+        emit MarketItemCreated(tokenId, msg.sender, address(this), price, false);
+
     }
 
 }

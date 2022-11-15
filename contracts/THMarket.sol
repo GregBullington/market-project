@@ -89,7 +89,7 @@ contract THMarket is ERC721URIStorage {
         marketItemId[tokenId].seller = payable(address(0)); // Empties address indicating there is no longer a seller.
         _itemsSold.increment();                             // Increments items sold.
         _transfer(address(this), msg.sender, tokenId);      // Calling transfer to move the token ownership from "this" contract to "msg.sender"
-        payable(owner).transfer(listingFee);              // Transfers the funds to owner of smart contract for the listing fee. 
+        payable(owner).transfer(listingFee);              // Transfers the listing fee to owner of smart contract. 
         payable(seller).transfer(msg.value);                // Transfers the funds to the seller.
 
     }

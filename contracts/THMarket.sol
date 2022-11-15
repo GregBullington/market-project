@@ -84,14 +84,32 @@ contract THMarket is ERC721URIStorage {
         require(msg.value == price, "Please submit the asking price in order to complete the purchase!");
 
         // Changing market item info
-        marketItemId[tokenId].owner = payable(msg.sender); // This changes the owner.
+        marketItemId[tokenId].owner = payable(msg.sender);  // This changes the owner.
         marketItemId[tokenId].sold = true;                  // Changes the status of the listing.
         marketItemId[tokenId].seller = payable(address(0)); // Empties address indicating there is no longer a seller.
         _itemsSold.increment();                             // Increments items sold.
         _transfer(address(this), msg.sender, tokenId);      // Calling transfer to move the token ownership from "this" contract to "msg.sender"
-        payable(owner).transfer(listingFee);              // Transfers the listing fee to owner of smart contract. 
+        payable(owner).transfer(listingFee);                // Transfers the listing fee to owner of smart contract. 
         payable(seller).transfer(msg.value);                // Transfers the funds to the seller.
+    }
 
+    // Returns all unsold market items. 
+    function fetchMarketItems() public view returns(MarketItem[] memory) {
+        uint itemCount = _tokenIds.current();                               // This sets itemsCount to all tokenId(s). 
+        uint unsoldItemsCount = _tokeIds.current() - _itemsSold.current();  // This subtracts the current itemsSold from the current items and sets the remaining as unsoldItemsCount
+        uint currentIndex = 0;                                              // CurrentIndex starts at 0.
+
+        MarketItem[] memory items = new MarketItem[](unsoldItemsCount);     // Array for unsold market items. 
+
+        for (uint i = 0; i < itemCount; i++) {
+            if(marketItemId[ i + 1 ].owner == address(this)) {
+                uint currentId = i + 1;
+                MarketItem storage currentItem = marketItemId[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
 
 }

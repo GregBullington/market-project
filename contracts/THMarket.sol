@@ -112,4 +112,55 @@ contract THMarket is ERC721URIStorage {
         return items;
     }
 
+    // Returns only items that a user has purchased.
+    function fetchMyTokens() public view returns(MarketItems[] memory) {
+        uint totalItemCount = _tokeIds.current();
+        uint itemCount = 0;
+        uint currentIndex = 0; 
+
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (marketItemId[ i + 1].owner == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (marketItemId [ i + 1 ].owner == msg.sender) {
+                uint currentId = i + 1;
+                MarketItem storage currentItem = marketItemId[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
+        // Returns only items that a user has listed.
+    function fetchItemsListed() public view returns(MarketItems[] memory) {
+        uint totalItemCount = _tokeIds.current();
+        uint itemCount = 0;
+        uint currentIndex = 0; 
+
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (marketItemId[ i + 1].seller == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (marketItemId [ i + 1 ].seller == msg.sender) {
+                uint currentId = i + 1;                                     // Will work as tokenId.
+                MarketItem storage currentItem = marketItemId[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
+
 }

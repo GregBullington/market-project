@@ -64,4 +64,14 @@ contract THMarket is ERC721URIStorage {
 
     }
 
+    // Mints a token and lists it in the marketplace.
+    function createToken(string memory tokenURI, uint256 price) public payable returns(uint) {
+        _tokenIds.increment(); // Increments the token Id
+        uint256 newTokenId = _tokenIds.current(); // New token with teh current new tokenId.
+        _mint(msg.sender, newTokenId); // Calling mint function in library.
+        _setTokenURI(newTokenId. tokenURI): 
+        createMarketItem(newTokenId, price); // Creates the marketItem.
+        return newTokenId; // Returns the new tokenId.
+    }
+
 }

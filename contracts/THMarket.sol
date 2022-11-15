@@ -74,4 +74,22 @@ contract THMarket is ERC721URIStorage {
         return newTokenId; // Returns the new tokenId.
     }
 
+    // Createing the sale of a marketplace item.
+    // Transfers ownership of the item as well as funding between parties
+
+    function createMarketSale(uint256 tokenId) public payable {
+        uint price = marketItemId[tokenId].price;
+        address seller = marketItemId[tokenId].seller;
+
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase!");
+        marketItemId[tokenId].owner = payable(msg.sender);
+        marketItemId[tokenId].sold = true;
+        marketItemId[tokenId].seller = payable(address(0));
+        _itemsSold.increment();
+        _transfer(address(this), msg.sender, tokenId);
+        payable(owner).transfer(listingPrice);
+        payable(seller).transfer(msg.value)
+
+    }
+
 }

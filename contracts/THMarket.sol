@@ -12,7 +12,7 @@ contract THMarket is ERC721URIStorage {
     Counters.Counter private _tokenIds; // Total number of items ever created.
     Counters.Counter private _itemsSold; // Total number of items ever sold.
 
-    uint256 listingPrice = 0.001 ether; // Payment for listing the NFT
+    uint256 listingFee = 0.001 ether; // Payment for listing the NFT
     address payable owner; // Owner of the smart contract.
 
     constructor() ERC721("The Market Token", "TMT")
@@ -38,18 +38,18 @@ contract THMarket is ERC721URIStorage {
         bool sold;
     };
 
-    function getListingPrice() public view returns(uint256) {
-        return listingPrice; // Returns the listing price.
+    function getListingFee() public view returns(uint256) {
+        return listingFee; // Returns the listing fee.
     }
 
-    function updateListingPrice(uint _listingPrice) public payable {
-        require(owner == msg.sender, "Only the marketplace owner can update the listing price!")
-        listingPrice = _listingPrice; //Updates the listing price.
+    function updateListingFee(uint _listingFee) public payable {
+        require(owner == msg.sender, "Only the marketplace owner can update the listing fee!")
+        listingFee = _listingFee; //Updates the listing fee.
     }
 
     function createMarketItem(uint256 tokenId, uint256 price) private {
         require(price > 0, "Price must be greater than zero!")
-        require(msg.value == listingPrice, "Price must be equal to listing price!")
+        require(msg.value == listingFee, "Fee must be equal to listing fee!")
 
         marketItemId[tokenId] = MarketItem(
             tokenId,
@@ -82,13 +82,15 @@ contract THMarket is ERC721URIStorage {
         address seller = marketItemId[tokenId].seller;
 
         require(msg.value == price, "Please submit the asking price in order to complete the purchase!");
-        marketItemId[tokenId].owner = payable(msg.sender);
-        marketItemId[tokenId].sold = true;
-        marketItemId[tokenId].seller = payable(address(0));
-        _itemsSold.increment();
-        _transfer(address(this), msg.sender, tokenId);
-        payable(owner).transfer(listingPrice);
-        payable(seller).transfer(msg.value)
+
+        // Changing market item info
+        marketItemId[tokenId].owner = payable(msg.sender); // This changes the owner.
+        marketItemId[tokenId].sold = true;                  // Changes the status of the listing.
+        marketItemId[tokenId].seller = payable(address(0)); // Empties address indicating there is no longer a seller.
+        _itemsSold.increment();                             // Increments items sold.
+        _transfer(address(this), msg.sender, tokenId);      // Calling transfer to move the token ownership from "this" contract to "msg.sender"
+        payable(owner).transfer(listingFee);              // Transfers the funds to owner of smart contract for the listing fee. 
+        payable(seller).transfer(msg.value);                // Transfers the funds to the seller.
 
     }
 
